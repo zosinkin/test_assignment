@@ -11,6 +11,9 @@ import (
 	core_pgx_pool "github.com/zosinkin/test_assignment.git/internal/core/repository/postgres/pool/pgx"
 	core_http_server "github.com/zosinkin/test_assignment.git/internal/core/server"
 	core_http_middleware "github.com/zosinkin/test_assignment.git/internal/core/transport/http/middleware"
+	subscription_service "github.com/zosinkin/test_assignment.git/internal/features/subscriptions/service"
+	subscription_transport_http "github.com/zosinkin/test_assignment.git/internal/features/subscriptions/transport/http"
+	subscriptions_postgres_repository "github.com/zosinkin/test_assignment.git/internal/features/subscriptions/repository/postgres"
 	"go.uber.org/zap"
 )
 
@@ -31,6 +34,7 @@ func main() {
 
 
 	logger.Debug("Initializing postgres connection pool")
+
 	pool, err := core_pgx_pool.NewPool(
 		ctx,
 		core_pgx_pool.NewConfigMust(),
@@ -40,15 +44,27 @@ func main() {
 	}
 	defer pool.Close()
 
+
+	subRepo := subscriptions_postgres_repository.NewSubRepository(pool)
+	subService := subscription_service.NewSubService(subRepo)
+
+	subTransportHTTP := subscription_transport_http.NewSubHTTPHandler(subService)
+
 	logger.Debug("Initializing HTTP server")
-	httpServer := core_http_server.NewHTTPServer(
-		core_http_server.NewConfigMust(),
-		logger,
-		core_http_middleware.RequestID(),
-		core_http_middleware.Logger(logger),
-		core_http_middleware.Trace(),
-		core_http_middleware.Panic(),
-	)
+		httpServer := core_http_server.NewHTTPServer(
+			core_http_server.NewConfigMust(),
+			logger,
+			core_http_middleware.RequestID(),
+			core_http_middleware.Logger(logger),
+			core_http_middleware.Trace(),
+			core_http_middleware.Panic(),
+		)
+
+	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
+	apiVersionRouter.RegisterRoutes(subTransportHTTP.Routes()...)
+
+	httpServer.RegisterAPIRouters(apiVersionRouter)
+
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP Server run error", zap.Error(err))

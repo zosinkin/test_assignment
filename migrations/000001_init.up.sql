@@ -8,5 +8,5 @@ CREATE TABLE subscription_service.subscriptions (
     start_date      DATE                NOT NULL,
     end_date        DATE                NOT NULL,
     created_at      TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ         NOT NULL DEFAULT NOW()
 )
