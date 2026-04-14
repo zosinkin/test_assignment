@@ -9,14 +9,12 @@ import (
 )
 
 const (
-	UninitializedID      int64 = 0
-	UninitializedVersion int   = 0
+	UninitializedID      int = 0
 )
 
 
 type Subscription struct {
-	ID          int64
-	Version     int
+	ID          int
 	ServiceName string
 	Price       int
 	UserID      uuid.UUID
@@ -26,8 +24,7 @@ type Subscription struct {
 
 
 func NewSubscription(
-	id int64,
-	version int,
+	id int,
 	serviceName string,
 	price int,
 	userID uuid.UUID,
@@ -36,7 +33,6 @@ func NewSubscription(
 ) Subscription {
 	return Subscription{
 		ID:          id,
-		Version:     version,
 		ServiceName: serviceName,
 		Price:       price,
 		UserID:      userID,
@@ -46,7 +42,7 @@ func NewSubscription(
 }
 
 
-func NewSubscriptionUninitialized(
+func NewSubUninitialized(
 	serviceName string,
 	price int,
 	userID uuid.UUID,
@@ -55,7 +51,6 @@ func NewSubscriptionUninitialized(
 ) Subscription {
 	return NewSubscription(
 		UninitializedID,
-		UninitializedVersion,
 		serviceName,
 		price,
 		userID,

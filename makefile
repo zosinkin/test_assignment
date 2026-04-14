@@ -19,7 +19,7 @@ env-cleanup:
 		echo "The environment cleanup has been canceled"; \
 	fi
 
-migarte-create:
+migrate-create:
 	@if [ -z "$(seq)" ]; then \
 		echo "Отсутсвует необходимый параметр seq. Пример: make migrate-create seq=init"; \
 		exit 1; \
