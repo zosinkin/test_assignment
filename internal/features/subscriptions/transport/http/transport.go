@@ -32,6 +32,10 @@ type SubService interface {
 		ctx context.Context, 
 		ID int,
 	) (domain.Subscription, error)
+
+	GetSubs(
+		ctx context.Context,
+	) ([]domain.Subscription, error)
 }
 
 
@@ -49,7 +53,7 @@ func (h *SubHTTPHandler) Routes() []core_http_server.Route  {
 		{
 			Method: http.MethodPost,
 			Path: "/subscriptions",
-			Handler: h.CreateUser,
+			Handler: h.CreateSub,
 		
 		},
 		{
@@ -61,6 +65,12 @@ func (h *SubHTTPHandler) Routes() []core_http_server.Route  {
 			Method: http.MethodGet,
 			Path: "/subscriptions/{id}",
 			Handler: h.GetSub,
+		},
+		{
+			Method: http.MethodGet,
+			Path: "/subscriptions",
+			Handler: h.GetSubs,
+		
 		},
 	}
 }

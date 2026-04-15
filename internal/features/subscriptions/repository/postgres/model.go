@@ -2,7 +2,9 @@ package subscriptions_postgres_repository
 
 import (
 	"time"
+
 	"github.com/google/uuid"
+	"github.com/zosinkin/test_assignment.git/internal/core/domain"
 )
 
 type SubModel struct {
@@ -14,3 +16,19 @@ type SubModel struct {
 	EndDate     *time.Time
 }
 
+
+func subDomainsFromModels(subs []SubModel) []domain.Subscription {
+	subDomains := make([]domain.Subscription, len(subs))
+
+	for i, sub := range subs {
+		subDomains[i] = domain.NewSubscription(
+			sub.ID,
+			sub.ServiceName,
+			sub.Price,
+			sub.UserID,
+			sub.StartDate,
+			sub.EndDate,
+		)
+	}
+	return subDomains
+}

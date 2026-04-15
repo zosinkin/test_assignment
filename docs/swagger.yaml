@@ -1,0 +1,239 @@
+basePath: /api/v1
+definitions:
+  github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  internal_features_subscriptions_transport_http.CreateSubRequest:
+    properties:
+      end_date:
+        example: 08-2025
+        type: string
+      price:
+        example: 400
+        minimum: 0
+        type: integer
+      service_name:
+        example: Yandex Plus
+        maxLength: 100
+        minLength: 1
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  internal_features_subscriptions_transport_http.CreateSubResponse:
+    properties:
+      end_date:
+        example: 08-2025
+        type: string
+      id:
+        example: 10
+        type: integer
+      price:
+        example: 400
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  internal_features_subscriptions_transport_http.GetSubResponse:
+    properties:
+      end_date:
+        example: 08-2025
+        type: string
+      id:
+        example: 10
+        type: integer
+      price:
+        example: 400
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  internal_features_subscriptions_transport_http.TotalCostResponse:
+    properties:
+      total_cost:
+        type: integer
+    type: object
+  internal_features_subscriptions_transport_http.subDTOResponse:
+    properties:
+      end_date:
+        example: 08-2025
+        type: string
+      id:
+        example: 10
+        type: integer
+      price:
+        example: 400
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+host: 127.0.0.1:5050
+info:
+  contact: {}
+  description: Subscription service REST-API scheme
+  title: Golang Subscription Service
+  version: "1.0"
+paths:
+  /subscriptions:
+    get:
+      description: Просмотр списка всех подписок в базе
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение списка подписок
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_subscriptions_transport_http.subDTOResponse'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+      summary: Список всех подписок
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Создать новую подписку в системе
+      parameters:
+      - description: CreateSub тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_subscriptions_transport_http.CreateSubRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно добавленная подписка
+          schema:
+            $ref: '#/definitions/internal_features_subscriptions_transport_http.CreateSubResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+      summary: Добавить подписку
+      tags:
+      - subscription
+  /subscriptions/{id}:
+    get:
+      description: Получить подписку по ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_subscriptions_transport_http.GetSubResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+      summary: Получить подписку
+      tags:
+      - subscription
+  /subscriptions/total:
+    get:
+      description: Calculate total cost of subscriptions for a given period with optional
+        filters by user ID and service name
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: Service name
+        in: query
+        name: service_name
+        type: string
+      - description: Start period (MM-YYYY)
+        in: query
+        name: period_start
+        required: true
+        type: string
+      - description: End period (MM-YYYY)
+        in: query
+        name: period_end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_subscriptions_transport_http.TotalCostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_zosinkin_test_assignment_git_internal_core_transport_http_response.ErrorResponse'
+      summary: Calculate total subscription cost
+      tags:
+      - subscription
+swagger: "2.0"

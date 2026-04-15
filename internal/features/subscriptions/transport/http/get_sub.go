@@ -12,12 +12,23 @@ import (
 type GetSubResponse subDTOResponse
 
 
+// GetSub godoc
+// @Summary      Получить подписку
+// @Description  Получить подписку по ID
+// @Tags         subscription
+// @Produce      json
+// @Param        id   path      int   true  "ID подписки"
+// @Success      200  {object}  GetSubResponse
+// @Failure      400  {object}  core_http_response.ErrorResponse
+// @Failure      404  {object}  core_http_response.ErrorResponse
+// @Failure      500  {object}  core_http_response.ErrorResponse
+// @Router       /subscriptions/{id} [get]
 func (h *SubHTTPHandler) GetSub(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
-	userID, err := core_http_utils.GetPathValue(r, "id")
+	subID, err := core_http_utils.GetPathValue(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
@@ -27,7 +38,7 @@ func (h *SubHTTPHandler) GetSub(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.subService.GetSub(ctx, userID)
+	sub, err := h.subService.GetSub(ctx, subID)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err, 
@@ -37,7 +48,7 @@ func (h *SubHTTPHandler) GetSub(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := GetSubResponse(userDTOFromDomain(user))
+	response := GetSubResponse(subDTOFromDomain(sub))
 
 	responseHandler.JSONResponse(response, http.StatusOK)
 }

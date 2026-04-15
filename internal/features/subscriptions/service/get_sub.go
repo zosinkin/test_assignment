@@ -14,7 +14,7 @@ func (s *SubService) GetSub(
 ) (domain.Subscription, error) {
 	sub, err := s.subRepository.GetSub(ctx, id)
 	if err != nil {
-		return domain.Subscription{}, fmt.Errorf("get user from repository: %w", err)
+		return domain.Subscription{}, fmt.Errorf("get sub from repository: %w", err)
 	}
 	return sub, nil
 }
