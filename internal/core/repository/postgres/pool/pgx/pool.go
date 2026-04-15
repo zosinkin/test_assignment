@@ -10,13 +10,15 @@ import (
 	core_postgres_pool "github.com/zosinkin/test_assignment.git/internal/core/repository/postgres/pool"
 )
 
-
+// Pool — обёртка над pgxpool.Pool с добавлением конфигурации таймаута операций.
 type Pool struct {
 	*pgxpool.Pool
 	opTimeout time.Duration
 }
 
 
+// NewPool создаёт и инициализирует новый пул соединений с PostgreSQL.
+// Формирует connection string, парсит конфигурацию, создаёт пул и проверяет соединение через Ping.
 func NewPool(
 	ctx context.Context,
 	config Config,
@@ -52,6 +54,8 @@ func NewPool(
 }
 
 
+// Query выполняет SQL-запрос, возвращающий несколько строк.
+// Оборачивает pgxpool.Query и возвращает интерфейс Rows.
 func (p *Pool) Query(
 	ctx context.Context, 
 	sql string, args ...any,
@@ -65,6 +69,8 @@ func (p *Pool) Query(
 }
 
 
+// QueryRow выполняет SQL-запрос, возвращающий одну строку.
+// Оборачивает pgxpool.QueryRow.
 func(p *Pool) QueryRow(
 	ctx context.Context,
 	sql string, 
@@ -75,6 +81,8 @@ func(p *Pool) QueryRow(
 }
 
 
+// Exec выполняет SQL-запрос без возврата строк (INSERT, UPDATE, DELETE).
+// Возвращает CommandTag с информацией о выполненной операции.
 func (p *Pool) Exec(
 	ctx context.Context, 
 	sql string, 
@@ -89,6 +97,8 @@ func (p *Pool) Exec(
 }
 
 
+// OpTimeout возвращает таймаут операций с БД,
+// который используется для ограничения времени выполнения запросов
 func (p *Pool) OpTimeout() time.Duration {
 	return p.opTimeout
 }

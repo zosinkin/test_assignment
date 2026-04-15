@@ -15,8 +15,14 @@ import (
 	subscription_transport_http "github.com/zosinkin/test_assignment.git/internal/features/subscriptions/transport/http"
 	subscriptions_postgres_repository "github.com/zosinkin/test_assignment.git/internal/features/subscriptions/repository/postgres"
 	"go.uber.org/zap"
-)
+	
+)  
 
+//@title  		Golang Subscription Service
+//@version 		1.0
+//@description 	Subscription service REST-API scheme
+//@host 		127.0.0.1:5050
+//@BasePath  	/api/v1
 func main() {
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
@@ -50,21 +56,28 @@ func main() {
 
 	subTransportHTTP := subscription_transport_http.NewSubHTTPHandler(subService)
 
+	// Создание HTTP сервера с middleware
 	logger.Debug("Initializing HTTP server")
 		httpServer := core_http_server.NewHTTPServer(
 			core_http_server.NewConfigMust(),
 			logger,
+			core_http_middleware.CORS(),
 			core_http_middleware.RequestID(),
 			core_http_middleware.Logger(logger),
 			core_http_middleware.Trace(),
 			core_http_middleware.Panic(),
 		)
 
+	// Создание versioned router (/api/v1)
 	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
+	// Регистрация HTTP-ручек подписок
 	apiVersionRouter.RegisterRoutes(subTransportHTTP.Routes()...)
 
+	// Подключение роутеров к серверу
 	httpServer.RegisterAPIRouters(apiVersionRouter)
-
+	
+	// Регистрация swagger-эндпоинтов (/swagger/)
+	httpServer.RegisterSwagger()
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP Server run error", zap.Error(err))

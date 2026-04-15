@@ -26,20 +26,30 @@ func init() {
 	}
 }
 
-//dto
+//DTO
 type CreateSubRequest struct {
-	ServiceName string `json:"service_name" validate:"required,min=1,max=100"`
-	UserID      string `json:"user_id" validate:"required,uuid"`
-	Price       int    `json:"price" validate:"required,gte=0"`
-	StartDate   string `json:"start_date" validate:"required,monthyear"`
-	EndDate     string `json:"end_date" validate:"omitempty,monthyear"`
+	ServiceName string `json:"service_name" validate:"required,min=1,max=100"   example:"Yandex Plus"`
+	UserID      string `json:"user_id" validate:"required,uuid"                 example:"60601fee-2bf1-4721-ae6f-7636e79a0cba"`
+	Price       int    `json:"price" validate:"required,gte=0"                  example:"400"`
+	StartDate   string `json:"start_date" validate:"required,monthyear"         example:"07-2025"`
+	EndDate     string `json:"end_date" validate:"omitempty,monthyear"          example:"08-2025"`
 }
 
 
 type CreateSubResponse subDTOResponse
 
-
-func (h *SubHTTPHandler) CreateUser(rw http.ResponseWriter, r *http.Request) {
+// CreateSub   	godoc
+// @Summary     Добавить подписку
+// @Description Создать новую подписку в системе
+// @Tags        subscription 
+// @Accept      json
+// @Produce     json
+// @Param       request body     CreateSubRequest  true "CreateSub тело запроса"
+// @Success     201     {object} CreateSubResponse "Успешно добавленная подписка"
+// @Failure     400     {object} core_http_response.ErrorResponse "Bad request"
+// @Failure     500     {object} core_http_response.ErrorResponse "Internal server error"
+// @Router      /subscriptions [post]
+func (h *SubHTTPHandler) CreateSub(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
@@ -49,27 +59,27 @@ func (h *SubHTTPHandler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 
 	//декодируем и валидируем запрос
 	if err := core_http_request.DecodeAndValidateRequest(r, &request); err != nil {
-		responseHandler.ErrorResponse(err, "failed to decode and validate CreateUser request")
+		responseHandler.ErrorResponse(err, "failed to decode and validate CreateSub request")
 
 		return 
 	}
 
-	//создаем домен из dto
-	userDomain, err := domainFromDTO(request)
+	//создаем домен из DTO
+	subDomain, err := domainFromDTO(request)
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to map request to domain")
 		return
 	}
 
 	//обращаемся к сервису
-	userDomain, err = h.subService.CreateSub(ctx, userDomain)
+	subDomain, err = h.subService.CreateSub(ctx, subDomain)
 	if err != nil {
-		responseHandler.ErrorResponse(err, "failed to create user")
+		responseHandler.ErrorResponse(err, "failed to create sub")
 		return 
 	}
 
 	//формирует ответ
-	response := CreateSubResponse(userDTOFromDomain(userDomain))
+	response := CreateSubResponse(subDTOFromDomain(subDomain))
 	responseHandler.JSONResponse(response, http.StatusCreated)
 }
 

@@ -16,6 +16,7 @@ func (s *SubService) TotalCost(
 	periodEnd string,
 ) (int, error) {
 	start, err := time.Parse("01-2006", periodStart)
+	fmt.Println(start)
 	if err != nil {
 		return 0, fmt.Errorf("invalid period_start: %w", core_errors.ErrInvalidArgument)
 	}
@@ -33,8 +34,8 @@ func (s *SubService) TotalCost(
 		ctx,
 		userID,
 		serviceName,
-		periodStart,
-		periodEnd,
+		start,
+		end,
 	)
 	if err != nil {
 		return 0, fmt.Errorf("repository total cost: %w", err)
